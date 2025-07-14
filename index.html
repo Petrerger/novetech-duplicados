@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoramento de Duplicados</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      height: 100vh;
+    }
+    nav {
+      width: 200px;
+      background-color: #2c3e50;
+      padding: 2rem 1rem;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: white;
+      text-align: left;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    nav button:hover {
+      text-decoration: underline;
+    }
+    main {
+      flex: 1;
+      padding: 2rem;
+      background-color: #f9f9f9;
+      overflow-y: auto;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .grid-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .city-card {
+      flex: 1 1 calc(33.333% - 1rem);
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .green { color: green; }
+    .red { color: red; }
+    .gray { color: gray; }
+    canvas {
+      width: 100% !important;
+      height: auto !important;
+      max-height: 250px;
+      margin-bottom: 2rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    h2 {
+      font-size: 1.3rem;
+      margin: 2rem 0 1rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <button onclick="showSection('cidades')">🏙️ Cidades</button>
+    <button onclick="showSection('graficos')">📉 Gráficos</button>
+  </nav>
+  <main>
+    <h1>📊 Monitoramento de Duplicados</h1>
+    <section id="cidades" class="grid-container"></section>
+    <section id="graficos" style="display: none"></section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function showSection(id) {
+      document.getElementById("cidades").style.display = id === 'cidades' ? 'flex' : 'none';
+      document.getElementById("graficos").style.display = id === 'graficos' ? 'block' : 'none';
+    }
+
+    const citiesData = [
+      { city: "Agua preta", date: "07/07", time: "08:08", total: 652, change: +2 },
+      { city: "Aguas Belas", date: "07/07", time: "10:11", total: 3537, change: 0 },
+      { city: "Alhandra", date: "07/07", time: "13:25", total: 42, change: +2 },
+      { city: "Alto Do Rodrigues", date: "07/07", time: "13:37", total: 74, change: -2 },
+      { city: "Apodi", date: "07/07", time: "13:37", total: 470, change: -4 },
+      { city: "Araponga", date: "07/07", time: "13:37", total: 236, change: -4 },
+      { city: "Areia", date: "07/07", time: "13:37", total: 303, change: +10 },
+      { city: "Assu", date: "07/07", time: "13:37", total: 361, change: +4 },
+      { city: "Brumado", date: "07/07", time: "13:37", total: 4121, change: +13 },
+      { city: "Caapora", date: "07/07", time: "13:37", total: 3085, change: -2 },
+      { city: "Caldas Brandao", date: "07/07", time: "13:37", total: 38, change: +6 },
+      { city: "Canaa", date: "07/07", time: "13:37", total: 19, change: +2 },
+      { city: "Conde", date: "07/07", time: "13:34", total: 436, change: +10 },
+      { city: "Cordeiro", date: "07/07", time: "13:37", total: 203, change: -24 },
+      { city: "Franco Da Rocha", date: "07/07", time: "13:37", total: 3514, change: +46 },
+      { city: "Guarabira", date: "07/07", time: "13:37", total: 2655, change: -45 },
+      { city: "Itabaiana", date: "07/07", time: "13:37", total: 121, change: +4 },
+      { city: "Itapororoca", date: "07/07", time: "13:37", total: 409, change: -5 },
+      { city: "Itatuba", date: "07/07", time: "13:37", total: 118, change: -14 },
+      { city: "Macaiba", date: "07/07", time: "13:37", total: 3062, change: -31 },
+      { city: "Miguel do Anta", date: "07/07", time: "13:37", total: 72, change: 0 },
+      { city: "Mogeiro", date: "07/07", time: "13:37", total: 68, change: +2 },
+      { city: "Patu", date: "07/07", time: "13:37", total: 211, change: +4 },
+      { city: "Paula Candido", date: "07/07", time: "13:37", total: 66, change: 0 },
+      { city: "Pedro Avelino", date: "07/07", time: "13:37", total: 117, change: -7 },
+      { city: "Pendencias", date: "07/07", time: "13:37", total: 226, change: -12 },
+      { city: "Poco Branco", date: "07/07", time: "13:37", total: 130, change: +12 },
+      { city: "Porto Do Mangue", date: "07/07", time: "13:37", total: 348, change: 0 },
+      { city: "Santa Rita", date: "07/07", time: "13:37", total: 3838, change: -145 },
+      { city: "Sao Jose De Uba", date: "07/07", time: "13:37", total: 34, change: 0 },
+      { city: "Tibau", date: "07/07", time: "13:37", total: 104, change: +2 },
+      { city: "Valenca", date: "07/07", time: "13:37", total: 424, change: -12 },
+      { city: "Vicosa", date: "07/07", time: "13:37", total: 2628, change: +59 }
+    ];
+
+    const graficos = [
+  { id: 'aguapretaChart', title: 'Agua Preta', data: [664,660,660,662,660,654,654,650,650,652], color: '#1E90FF' },
+  { id: 'aguasbelasChart', title: 'Aguas Belas', data: [3537,3543,3543,3543,3539,3539,3537,3537,3537,3537], color: '#228B22' },
+  { id: 'alhandraChart', title: 'Alhandra', data: [0,6,26,37,49,30,30,32,40,42], color: '#FF1493' },
+  { id: 'altodorodriguesChart', title: 'Alto do Rodrigues', data: [76,76,78,78,70,68,72,72,76,74], color: '#FFD700' },
+  { id: 'apodiChart', title: 'Apodi', data: [511,515,466,482,470,476,482,480,474,470], color: '#DC143C' },
+  { id: 'arapongaChart', title: 'Araponga', data: [241,240,242,244,244,250,242,240,240,236], color: '#00CED1' },
+  { id: 'areiaChart', title: 'Areia', data: [290,303,295,305,303,307,303,297,293,303], color: '#00BFFF' },
+  { id: 'assuChart', title: 'Assu', data: [366,368,358,370,366,372,375,375,357,361], color: '#FF4500' },
+  { id: 'brumadoChart', title: 'Brumado', data: [4156,4149,4153,4117,4105,4101,4077,4097,4108,4121], color: '#1E90FF' },
+  { id: 'caaporaChart', title: 'Caapora', data: [0,0,0,0,3108,3113,3088,3099,3087,3085], color: '#9932CC' },
+  { id: 'caldasbrandaoChart', title: 'Caldas Brandao', data: [30,32,32,32,36,32,32,34,32,38], color: '#20B2AA' },
+  { id: 'canaaChart', title: 'Canaa', data: [11,11,11,13,19,21,13,21,17,19], color: '#8B008B' },
+  { id: 'condeChart', title: 'Conde', data: [421,413,404,408,406,414,415,408,426,436], color: '#FF8C00' },
+  { id: 'cordeiroChart', title: 'Cordeiro', data: [271,272,284,286,253,260,229,227,203], color: '#FF6347' },
+  { id: 'francodarochaChart', title: 'Franco da Rocha', data: [3512,3507,3684,3647,3688,3678,3635,3533,3468,3514], color: '#2E8B57' },
+  { id: 'guarabiraChart', title: 'Guarabira', data: [4369,2900,2750,2723,2697,2679,2671,2668,2700,2655], color: '#B22222' },
+  { id: 'itabaianaChart', title: 'Itabaiana', data: [145,159,159,155,131,121,123,123,117,121], color: '#5F9EA0' },
+  { id: 'itapororocaChart', title: 'Itapororoca', data: [401,409,398,398,410,402,402,402,414,409], color: '#FF69B4' },
+  { id: 'itatubaChart', title: 'Itatuba', data: [122,130,125,120,116,126,130,130,132,118], color: '#FF7F50' },
+  { id: 'macaibaChart', title: 'Macaiba', data: [3105,3090,3095,3063,3082,3072,3105,3098,3093,3062], color: '#8B0000' },
+  { id: 'migueldoantaChart', title: 'Miguel do Anta', data: [50,50,50,54,54,60,74,74,72,72], color: '#FF6347' },
+  { id: 'mogeiroChart', title: 'Mogeiro', data: [58,60,60,56,54,52,62,60,66,68], color: '#6A5ACD' },
+  { id: 'patuChart', title: 'Patu', data: [247,237,247,261,269,247,243,245,207,211], color: '#008080' },
+  { id: 'paulacandidoChart', title: 'Paula Candido', data: [56,56,58,56,56,64,64,68,66,66], color: '#A0522D' },
+  { id: 'pedroavelinoChart', title: 'Pedro Avelino', data: [111,113,116,114,120,116,118,118,124,117], color: '#20B2AA' },
+  { id: 'pendenciasChart', title: 'Pendencias', data: [273,256,250,250,254,244,240,240,238,226], color: '#2F4F4F' },
+  { id: 'pocobrancoChart', title: 'Poco Branco', data: [140,138,126,114,106,106,116,116,118,130], color: '#BA55D3' },
+  { id: 'portodomangueChart', title: 'Porto do Mangue', data: [348,348,348,348,348,348,348,348,348,348], color: '#00BFFF' },
+  { id: 'santaritaChart', title: 'Santa Rita', data: [4097,4066,4042,4030,4042,4033,4007,4007,3983,3838], color: '#FF1493' },
+  { id: 'saojosedaubaChart', title: 'Sao Jose de Uba', data: [36,34,34,34,32,32,34,34,34,34], color: '#228B22' },
+  { id: 'tibauChart', title: 'Tibau', data: [96,96,98,96,98,98,102,102,102,104], color: '#4682B4' },
+  { id: 'valencaChart', title: 'Valenca', data: [329,338,356,365,390,396,412,426,436,424], color: '#FF8C00' },
+  { id: 'vicosaChart', title: 'Vicosa', data: [3227,3228,3109,3119,3139,2981, ,2627,2569,2628], color: '#9932CC' }
+
+];
+
+    const container = document.getElementById("cidades");
+    citiesData.forEach(({ city, date, time, total, change }) => {
+      const card = document.createElement("div");
+      card.className = "city-card";
+      let changeClass = "gray";
+      if (change > 0) changeClass = "red";
+      else if (change < 0) changeClass = "green";
+
+      card.innerHTML = `
+        <h2>🏙️ ${city}</h2>
+        <p>📅 ${date} ⏰ ${time}</p>
+        <p>🔢 Total: <strong>${total}</strong></p>
+        <p>📈 Variação: <strong class="${changeClass}">${change > 0 ? '+' + change : change}</strong></p>
+      `;
+      container.appendChild(card);
+    });
+
+    const graficosContainer = document.getElementById("graficos");
+    const labels = ["05/05", "12/05", "19/05", "26/05", "02/06", "09/06", "16/06", "23/06", "30/06",'07/07'];
+
+    graficos.forEach(({ id, title, data, color }) => {
+      const titleElement = document.createElement("h2");
+      titleElement.innerText = `📉 Gráfico de Acompanhamento - ${title.toUpperCase()}`;
+
+      const canvas = document.createElement("canvas");
+      canvas.id = id;
+
+      graficosContainer.appendChild(titleElement);
+      graficosContainer.appendChild(canvas);
+
+      const ctx = canvas.getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Duplicados",
+              data,
+              borderColor: color,
+              fill: false,
+              tension: 0.3,
+              pointRadius: 4,
+              pointHoverRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                boxWidth: 12,
+                font: {
+                  size: 12
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 50
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
